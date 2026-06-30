@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Калькулятор производства колбасных изделий</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4a90e2">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Колбасы">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<style>
+/* ===================== ОБЩИЕ СТИЛИ ===================== */
+:root{
+  --blue:#4a90e2;
+  --blue-dark:#3a73b5;
+  --yellow:#fffacd;
+  --green:#d4edda;
+  --green-dark:#2e7d32;
+  --red:#ffe6e6;
+  --red-dark:#c0392b;
+  --gray-bg:#f4f6fa;
+  --border:#d0d7e2;
+}
+*{box-sizing:border-box;}
+body{
+  font-family:"Segoe UI",Arial,sans-serif;
+  margin:0;
+  background:var(--gray-bg);
+  color:#222;
+}
+header.app-header{
+  background:var(--blue);
+  color:#fff;
+  padding:14px 20px;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+header.app-header h1{
+  margin:0;
+  font-size:1.3em;
+}
+.header-actions button{
+  background:#fff;
+  color:var(--blue-dark);
+  border:none;
+  border-radius:6px;
+  padding:7px 12px;
+  margin-left:6px;
+  cursor:pointer;
+  font-weight:600;
+  font-size:0.85em;
+}
+.header-actions button:hover{ background:#eef4ff; }
+
+nav.tabs{
+  display:flex;
+  flex-wrap:wrap;
+  background:#fff;
+  border-bottom:2px solid var(--blue);
+  position:sticky;
+  top:0;
+  z-index:50;
+}
+nav.tabs button{
+  flex:1 1 auto;
+  padding:12px 8px;
+  border:none;
+  background:#fff;
+  cursor:pointer;
+  font-size:0.95em;
+  font-weight:600;
+  color:#555;
+  border-bottom:4px solid transparent;
+}
+nav.tabs button.active{
+  color:var(--blue-dark);
+  border-bottom:4px solid var(--blue);
+  background:#eef4ff;
+}
+main{ padding:16px; max-width:1300px; margin:0 auto; }
+.tab-content{ display:none; }
+.tab-content.active{ display:block; }
+
+h2.section-title{
+  background:var(--blue);
+  color:#fff;
+  padding:10px 14px;
+  border-radius:8px 8px 0 0;
+  margin:24px 0 0 0;
+  font-size:1.1em;
+}
+.card{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:0 0 8px 8px;
+  padding:16px;
+  margin-bottom:6px;
+}
+.card.no-title{ border-radius:8px; margin-top:24px;}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin:10px 0;
+  font-size:0.92em;
+}
+table caption{ text-align:left; font-weight:bold; margin-bottom:4px;}
+th,td{
+  border:1px solid var(--border);
+  padding:6px 8px;
+  text-align:left;
+}
+th{ background:var(--blue); color:#fff; }
+tbody tr:nth-child(even){ background:#f5f8fc; }
+tbody tr:hover{ background:#e8f0fb; }
+
+input[type=text],input[type=number],input[type=date],select{
+  background:var(--yellow);
+  border:1px solid #e0d98c;
+  border-radius:5px;
+  padding:6px 8px;
+  font-size:0.95em;
+  width:100%;
+}
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+  gap:10px;
+  align-items:end;
+}
+.form-grid label{
+  display:block;
+  font-size:0.8em;
+  font-weight:600;
+  margin-bottom:3px;
+  color:#444;
+}
+.btn{
+  background:var(--blue);
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  padding:9px 16px;
+  cursor:pointer;
+  font-weight:600;
+  font-size:0.95em;
+}
+.btn:hover{ background:var(--blue-dark); }
+.btn.secondary{ background:#888; }
+.btn.secondary:hover{ background:#666; }
+.btn.danger{ background:var(--red-dark); }
+.btn.danger:hover{ background:#962d20; }
+.btn.small{ padding:4px 9px; font-size:0.8em; }
+
+.result-box{
+  background:var(--green);
+  border:1px solid #b6dfc0;
+  border-radius:8px;
+  padding:12px;
+  margin:10px 0;
+}
+.warn-box{
+  background:#fff8e1;
+  border:1px solid #f0d97a;
+  border-radius:8px;
+  padding:10px 14px;
+  margin:8px 0;
+  color:#7a5b00;
+  font-weight:600;
+}
+.danger-box{
+  background:var(--red);
+  border:1px solid #f3aaaa;
+  border-radius:8px;
+  padding:10px 14px;
+  margin:8px 0;
+  color:var(--red-dark);
+  font-weight:600;
+}
+.ok-box{
+  background:var(--green);
+  border:1px solid #b6dfc0;
+  border-radius:8px;
+  padding:10px 14px;
+  margin:8px 0;
+  color:var(--green-dark);
+  font-weight:600;
+}
+.kpi-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:12px;
+  margin:12px 0;
+}
+.kpi{
+  background:#fff;
+  border:1px solid var(--border);
+  border-left:5px solid var(--blue);
+  border-radius:8px;
+  padding:10px 14px;
+}
+.kpi .label{ font-size:0.78em; color:#666; text-transform:uppercase;}
+.kpi .value{ font-size:1.4em; font-weight:700; color:var(--blue-dark); }
+
+.recipe-tabs{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;}
+.recipe-tabs button{
+  padding:7px 12px;
+  border:1px solid var(--blue);
+  background:#fff;
+  color:var(--blue-dark);
+  border-radius:6px;
+  cursor:pointer;
+  font-size:0.85em;
+  font-weight:600;
+}
+.recipe-tabs button.active{ background:var(--blue); color:#fff; }
+
+.haccp{ border-left:5px solid var(--red-dark); background:var(--red); padding:8px 12px; margin:4px 0; border-radius:6px; font-size:0.9em;}
+
+footer{ text-align:center; padding:20px; color:#888; font-size:0.8em;}
+
+@media print{
+  header.app-header, nav.tabs, .no-print, .header-actions, .btn { display:none !important; }
+  .tab-content{ display:block !important; }
+  body{ background:#fff; }
+  .card{ border:none; }
+}
+@media (max-width:700px){
+  nav.tabs button{ font-size:0.8em; padding:10px 4px;}
+  table{ font-size:0.8em; }
+}
+small.hint{ color:#777; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <h1>🥩 Калькулятор производства колбасных изделий</h1>
+  <div class="header-actions">
+    <button onclick="exportData()">⬇️ Экспорт JSON</button>
+    <button onclick="document.getElementById('importFile').click()">⬆️ Импорт JSON</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+    <button onclick="resetAllData()">🗑️ Сброс данных</button>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="intake">📥 Поступление сырья</button>
+  <button class="tab-btn" data-tab="calc">🧮 Калькулятор партии</button>
+  <button class="tab-btn" data-tab="cards">📖 Технологические карты</button>
+  <button class="tab-btn" data-tab="process">🏭 Техпроцесс</button>
+  <button class="tab-btn" data-tab="econ">💰 Экономика</button>
+</nav>
+
+<main>
+
+<!-- ===================== ВКЛАДКА: ПОСТУПЛЕНИЕ СЫРЬЯ ===================== -->
+<div class="tab-content active" id="tab-intake">
+
+  <h2 class="section-title">Добавить поступление сырья</h2>
+  <div class="card">
+    <div class="form-grid">
+      <div><label>Дата поступления</label><input type="date" id="in-date"></div>
+      <div><label>Сырьё</label><select id="in-ingredient"></select></div>
+      <div><label>Количество, кг</label><input type="number" id="in-qty" min="0" step="0.001" placeholder="0.000"></div>
+      <div><label>Цена за кг, ₽</label><input type="number" id="in-price" min="0" step="0.01"></div>
+      <div><label>Поставщик</label><input type="text" id="in-supplier" placeholder="Название поставщика"></div>
+      <div><label>Партия / накладная №</label><input type="text" id="in-batch" placeholder="№ накладной"></div>
+      <div><label>Срок годности</label><input type="date" id="in-expiry"></div>
+      <div><button class="btn" onclick="addIntake()">➕ Добавить поступление</button></div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Журнал поступлений</h2>
+  <div class="card">
+    <table id="intake-table">
+      <thead><tr>
+        <th>Дата</th><th>Сырьё</th><th>Кол-во, кг</th><th>Цена, ₽/кг</th><th>Сумма, ₽</th>
+        <th>Поставщик</th><th>Партия</th><th>Срок годности</th><th>Статус</th><th class="no-print">Действие</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <h2 class="section-title">Остатки сырья на складе</h2>
+  <div class="card">
+    <table id="stock-table">
+      <thead><tr><th>Сырьё</th><th>Остаток, кг</th><th>Цена, ₽/кг</th><th>Стоимость остатка, ₽</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="kpi-grid">
+      <div class="kpi"><div class="label">Общая стоимость сырья на складе</div><div class="value" id="stock-total-value">0 ₽</div></div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Сколько продукции можно произвести из остатков</h2>
+  <div class="card">
+    <div id="intake-warnings"></div>
+    <table id="max-production-table">
+      <thead><tr><th>Вид колбасы</th><th>Лимитирующее сырьё</th><th>Макс. выпуск готовой продукции, кг</th><th>Себестоимость 1 кг, ₽</th><th>Рентабельность при текущей цене</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="result-box" id="recommendation-box"></div>
+  </div>
+
+</div>
+
+<!-- ===================== ВКЛАДКА: КАЛЬКУЛЯТОР ПАРТИИ ===================== -->
+<div class="tab-content" id="tab-calc">
+  <h2 class="section-title">Параметры партии</h2>
+  <div class="card">
+    <div class="form-grid">
+      <div><label>Вид колбасы</label><select id="calc-recipe"></select></div>
+      <div><label>План выпуска готовой продукции, кг</label><input type="number" id="calc-output" min="0" step="0.1" value="80"></div>
+      <div><label>Отпускная цена, ₽/кг</label><input type="number" id="calc-price" min="0" step="1" value="1200"></div>
+      <div><label>Выход годной продукции, % <small class="hint">(можно скорректировать)</small></label><input type="number" id="calc-yield" min="1" max="100" step="0.1"></div>
+      <div><button class="btn" onclick="renderCalc()">🔄 Рассчитать</button></div>
+    </div>
+  </div>
+
+  <div id="calc-results"></div>
+</div>
+
+<!-- ===================== ВКЛАДКА: ТЕХКАРТЫ ===================== -->
+<div class="tab-content" id="tab-cards">
+  <h2 class="section-title">Технологические карты</h2>
+  <div class="card">
+    <div class="recipe-tabs" id="cards-recipe-tabs"></div>
+    <div id="cards-content"></div>
+  </div>
+</div>
+
+<!-- ===================== ВКЛАДКА: ТЕХПРОЦЕСС ===================== -->
+<div class="tab-content" id="tab-process">
+  <h2 class="section-title">Этапы технологического процесса (полный цикл, полукопчёные колбасы)</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>№</th><th>Этап</th><th>Параметры режима</th></tr></thead>
+      <tbody id="process-steps-body"></tbody>
+    </table>
+    <p><small class="hint">Для ветчины этапы 15–16 (копчение, сушка/созревание) не применяются — после охлаждения сразу упаковка и хранение.
+    Для жареных колбас и колбасок для жарки вместо обжарки/варки/копчения выполняется обжаривание в печи до готовности (этап реализуется в торговой точке либо на производстве по заказу), сушка/созревание не требуется.</small></p>
+  </div>
+
+  <h2 class="section-title">🔴 Критические контрольные точки (HACCP)</h2>
+  <div class="card" id="haccp-box"></div>
+</div>
+
+<!-- ===================== ВКЛАДКА: ЭКОНОМИКА ===================== -->
+<div class="tab-content" id="tab-econ">
+  <h2 class="section-title">Сводный экономический дашборд</h2>
+  <div class="card">
+    <div class="form-grid">
+      <div><label>Единая отпускная цена для сравнения, ₽/кг <small class="hint">(используется для всех видов ниже)</small></label><input type="number" id="econ-price" min="0" step="1" value="1200" oninput="renderEconomics()"></div>
+    </div>
+    <div class="kpi-grid" id="econ-kpis"></div>
+    <table id="econ-table">
+      <thead><tr>
+        <th>Вид колбасы</th><th>Себестоимость 1 кг, ₽</th><th>Отпускная цена, ₽</th>
+        <th>Прибыль с 1 кг, ₽</th><th>Рентабельность, %</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <h2 class="section-title">Структура себестоимости (на 1 кг готовой продукции)</h2>
+  <div class="card" id="econ-structure"></div>
+
+  <h2 class="section-title">🏆 ТОП-3 самых прибыльных вида продукции</h2>
+  <div class="card result-box" id="econ-top3"></div>
+</div>
+
+</main>
+
+<footer>Калькулятор производства колбасных изделий · данные хранятся локально в браузере (localStorage)</footer>
+
+<script>
+/* =====================================================================
+   СПРАВОЧНИК СЫРЬЯ И ЦЕН ПО УМОЛЧАНИЮ
+   ===================================================================== */
+const DEFAULT_PRICES = {
+  govyadina_vs:      { name: "Говядина высшего сорта",   price: 800 },
+  govyadina_1s:      { name: "Говядина 1 сорта",         price: 550 },
+  svinina_polug:     { name: "Свинина полужирная",       price: 400 },
+  svinina_nezhir:    { name: "Свинина нежирная",         price: 420 },
+  svinina_zhir:      { name: "Свинина жирная",           price: 350 },
+  shpik:             { name: "Шпик хребтовый",           price: 350 },
+  voda:              { name: "Вода ледяная",             price: 5   },
+  sol:               { name: "Соль",                     price: 30  },
+  nitrit:            { name: "Нитрит натрия",            price: 400 },
+  sahar:             { name: "Сахар",                    price: 80  },
+  perec:             { name: "Перец чёрный",             price: 1200},
+  chesnok:           { name: "Чеснок свежий",            price: 400 },
+  fosfaty:           { name: "Фосфаты",                  price: 500 },
+  specii:            { name: "Специи (смесь)",           price: 800 },
+  muskat:            { name: "Мускатный орех",           price: 1500},
+  obolochka:         { name: "Оболочка колбасная (₽/метр)", price: 480 }
+};
+
+/* =====================================================================
+   РЕЦЕПТУРЫ — все нормы указаны НА 10 КГ ОСНОВНОГО СЫРЬЯ (мясного блока)
+   ===================================================================== */
+const RECIPES = {
+  svinaya: {
+    name: "Колбаса «Свиная» (полукопчёная)",
+    type: "polukopch",
+    yield: 0.80,
+    storage: "до 15 суток при +2...+6°C",
+    organoleptic: "Батоны прямые или слегка изогнутые, цвет от розового до тёмно-красного на разрезе, вкус в меру солёный с ароматом чеснока и пряностей.",
+    items: [
+      {ing:"svinina_polug", qty:7.0},
+      {ing:"shpik",         qty:2.0},
+      {ing:"svinina_zhir",  qty:1.0},
+      {ing:"sol",           qty:0.22},
+      {ing:"nitrit",        qty:0.0085},
+      {ing:"sahar",         qty:0.015},
+      {ing:"perec",         qty:0.015},
+      {ing:"chesnok",       qty:0.02}
+    ]
+  },
+  krakovskaya: {
+    name: "Колбаса «Краковская» (полукопчёная)",
+    type: "polukopch",
+    yield: 0.80,
+    storage: "до 15 суток при +2...+6°C",
+    organoleptic: "Крупный шпик виден на разрезе равномерно, вкус острый, выраженный аромат чеснока и перца.",
+    items: [
+      {ing:"govyadina_vs",  qty:2.5},
+      {ing:"svinina_polug", qty:5.0},
+      {ing:"shpik",         qty:1.5},
+      {ing:"sol",           qty:0.25},
+      {ing:"nitrit",        qty:0.0075},
+      {ing:"sahar",         qty:0.02},
+      {ing:"perec",         qty:0.01},
+      {ing:"chesnok",       qty:0.025}
+    ]
+  },
+  servelat: {
+    name: "Колбаса «Сервелат» (полукопчёная)",
+    type: "polukopch",
+    yield: 0.78,
+    storage: "до 20 суток при +2...+6°C",
+    organoleptic: "Тонкий помол, плотная консистенция, тонкий аромат мускатного ореха.",
+    items: [
+      {ing:"govyadina_vs",  qty:4.0},
+      {ing:"svinina_polug", qty:3.5},
+      {ing:"shpik",         qty:1.5},
+      {ing:"sol",           qty:0.25},
+      {ing:"nitrit",        qty:0.0075},
+      {ing:"sahar",         qty:0.02},
+      {ing:"perec",         qty:0.015},
+      {ing:"muskat",        qty:0.005}
+    ]
+  },
+  odesskaya: {
+    name: "Колбаса «Одесская» (полукопчёная)",
+    type: "polukopch",
+    yield: 0.80,
+    storage: "до 15 суток при +2...+6°C",
+    organoleptic: "Равномерное распределение шпика, выраженный чесночный аромат.",
+    items: [
+      {ing:"govyadina_vs",  qty:2.0},
+      {ing:"svinina_polug", qty:5.5},
+      {ing:"shpik",         qty:1.5},
+      {ing:"sol",           qty:0.25},
+      {ing:"nitrit",        qty:0.0075},
+      {ing:"sahar",         qty:0.02},
+      {ing:"perec",         qty:0.015},
+      {ing:"chesnok",       qty:0.03}
+    ]
+  },
+  vetchina: {
+    name: "Ветчина прессованная",
+    type: "vetchina",
+    yield: 0.92,
+    storage: "до 5 суток при +2...+6°C",
+    organoleptic: "Кусковая структура мяса видна на срезе, сочная, в меру солёная.",
+    items: [
+      {ing:"svinina_nezhir",qty:8.0},
+      {ing:"shpik",         qty:1.0},
+      {ing:"voda",          qty:0.8},
+      {ing:"sol",           qty:0.2},
+      {ing:"fosfaty",       qty:0.05},
+      {ing:"nitrit",        qty:0.0075},
+      {ing:"sahar",         qty:0.01},
+      {ing:"specii",        qty:0.02}
+    ]
+  },
+  ukr_zharenaya: {
+    name: "Колбаса «Украинская жареная»",
+    type: "zharenaya",
+    yield: 0.75,
+    storage: "до 3 суток при +2...+6°C (жареная, не для длительного хранения)",
+    organoleptic: "Корочка после обжарки, ярко выраженный чесночный аромат.",
+    items: [
+      {ing:"svinina_polug", qty:6.0},
+      {ing:"shpik",         qty:2.5},
+      {ing:"sol",           qty:0.2},
+      {ing:"chesnok",       qty:0.05},
+      {ing:"perec",         qty:0.03},
+      {ing:"nitrit",        qty:0.0085},
+      {ing:"specii",        qty:0.03}
+    ]
+  },
+  kolbaski: {
+    name: "Колбаски для жарки",
+    type: "zharenaya",
+    yield: 0.75,
+    storage: "до 3 суток при +2...+6°C (для реализации после обжарки)",
+    organoleptic: "Сочная мясная начинка, естественная оболочка, аромат специй и чеснока.",
+    items: [
+      {ing:"svinina_polug", qty:5.0},
+      {ing:"govyadina_1s",  qty:3.0},
+      {ing:"shpik",         qty:1.5},
+      {ing:"sol",           qty:0.2},
+      {ing:"chesnok",       qty:0.04},
+      {ing:"perec",         qty:0.025},
+      {ing:"nitrit",        qty:0.0085},
+      {ing:"specii",        qty:0.025}
+    ]
+  }
+};
+
+/* Коэффициенты энергозатрат и трудозатрат по типу продукции */
+const ENERGY_COEF = { polukopch:1.0, vetchina:0.7, zharenaya:0.8 };
+const LABOR_COEF  = { polukopch:1.0, vetchina:0.8, zharenaya:0.7 };
+const ENERGY_BASE_PER_10KG_OUTPUT = 279.05; // руб на 10 кг ГОТОВОЙ продукции
+const LABOR_BASE_PER_10KG_OUTPUT  = 145.85; // руб на 10 кг ГОТОВОЙ продукции
+const OVERHEAD_RATE = 0.15;   // накладные расходы
+const AMORTIZATION_RATE = 0.05; // амортизация
+const SHELL_RATE_M_PER_KG = 0.12; // примерный расход оболочки, метров на кг готовой продукции (можно считать справочно)
+
+/* Технологический процесс — 18 этапов (общий, для полукопчёных) */
+const PROCESS_STEPS = [
+  ["1","Размораживание сырья","Т 0...+4°C, 24–48 ч"],
+  ["2","Обвалка и жиловка","Ручная/механическая, отделение костей и соединительной ткани"],
+  ["3","Посол говядины","Т +2...+4°C, 48–72 ч"],
+  ["4","Посол свинины и шпика","Т +2...+4°C, 24–48 ч"],
+  ["5","Измельчение говядины","Решётка Ø 2–3 мм"],
+  ["6","Измельчение свинины","Решётка Ø 8–10 мм"],
+  ["7","Измельчение шпика","Ø 8–10 мм, Т -2...-4°C"],
+  ["8","Фаршесоставление","8–12 мин, Т фарша ≤ +12°C"],
+  ["9","Шприцевание","Давление 0,3–0,5 МПа"],
+  ["10","Вязка батонов","Ø оболочки 40–50 мм"],
+  ["11","Осадка","2–4 ч, Т +2...+4°C"],
+  ["12","Обжарка","Т 80–120°C, 60–120 мин"],
+  ["13","Варка","Т 70–85°C, до +71°C в толще батона"],
+  ["14","Охлаждение душем","10–15 мин, холодная вода"],
+  ["15","Копчение","Т 35–50°C, 12–24 ч"],
+  ["16","Сушка / созревание","48–72 ч, Т +10...+12°C, влажность 75–78%"],
+  ["17","Упаковка","Вакуумная или под плёнку"],
+  ["18","Хранение","Т +2...+6°C"]
+];
+
+const HACCP_POINTS = [
+  ["ККТ-1", "Посол", "Т ≤ +4°C, время ≥ 24 ч"],
+  ["ККТ-2", "Измельчение", "Т фарша ≤ +12°C"],
+  ["ККТ-3", "Варка", "Т в толще батона ≥ +71°C"],
+  ["ККТ-4", "Копчение", "Т 35–50°C, время ≥ 12 ч"],
+  ["ККТ-5", "Хранение", "Т +2...+6°C"]
+];
+
+/* =====================================================================
+   СОСТОЯНИЕ ПРИЛОЖЕНИЯ + LOCALSTORAGE
+   ===================================================================== */
+const STORAGE_KEY = "sausage_calc_state_v1";
+
+function loadState(){
+  let raw = localStorage.getItem(STORAGE_KEY);
+  if(raw){
+    try{
+      let parsed = JSON.parse(raw);
+      // объединяем с дефолтными ценами, если появились новые ингредиенты
+      let prices = {};
+      for(let k in DEFAULT_PRICES){
+        prices[k] = (parsed.prices && parsed.prices[k] !== undefined) ? parsed.prices[k] : DEFAULT_PRICES[k].price;
+      }
+      return { prices: prices, intake: parsed.intake || [] };
+    }catch(e){ console.error("Ошибка чтения localStorage", e); }
+  }
+  let prices = {};
+  for(let k in DEFAULT_PRICES) prices[k] = DEFAULT_PRICES[k].price;
+  return { prices: prices, intake: [] };
+}
+
+function saveState(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+let state = loadState();
+
+/* =====================================================================
+   ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+   ===================================================================== */
+function money(v){ return (Math.round(v*100)/100).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2}) + " ₽"; }
+function num(v,d=3){ return (Math.round(v*Math.pow(10,d))/Math.pow(10,d)).toLocaleString('ru-RU',{minimumFractionDigits:Math.min(2,d),maximumFractionDigits:d}); }
+function pct(v){ return (Math.round(v*10)/10) + " %"; }
+function ingName(key){ return DEFAULT_PRICES[key] ? DEFAULT_PRICES[key].name : key; }
+function priceOf(key){ return state.prices[key] !== undefined ? state.prices[key] : (DEFAULT_PRICES[key]?DEFAULT_PRICES[key].price:0); }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function addMonths(dateStr, m){
+  let d = new Date(dateStr);
+  d.setMonth(d.getMonth()+m);
+  return d.toISOString().slice(0,10);
+}
+
+/* Остатки сырья на складе: сумма поступлений минус списания (поле used) */
+function computeStock(){
+  let stock = {};
+  for(let key in DEFAULT_PRICES) stock[key] = 0;
+  state.intake.forEach(rec=>{
+    let remaining = rec.qty - (rec.used||0);
+    stock[rec.ingredient] = (stock[rec.ingredient]||0) + remaining;
+  });
+  return stock;
+}
+
+/* Максимальный выпуск готовой продукции по виду колбасы, исходя из остатков
+   Ограничение учитывается только по тем ингредиентам, по которым есть хоть одно поступление
+   (специи/соль обычно не лимитируют производство и закупаются по мере надобности) */
+function computeMaxOutput(recipeKey, stock){
+  let r = RECIPES[recipeKey];
+  let trackedKeys = new Set(state.intake.map(i=>i.ingredient));
+  let minRawBasis = Infinity;
+  let limiter = "—";
+  r.items.forEach(it=>{
+    if(trackedKeys.has(it.ing)){
+      let perKgRawBasis = it.qty/10; // кг ингредиента на 1 кг "сырьевой базы" (10кг рецептурной основы)
+      if(perKgRawBasis>0){
+        let maxRaw = (stock[it.ing]||0) / perKgRawBasis;
+        if(maxRaw < minRawBasis){ minRawBasis = maxRaw; limiter = ingName(it.ing); }
+      }
+    }
+  });
+  if(minRawBasis === Infinity){ return {output:0, limiter:"нет данных о поступлениях"}; }
+  let output = minRawBasis * r.yield;
+  return {output: Math.max(0,output), limiter: limiter};
+}
+
+/* Полный расчёт партии по виду колбасы и заданному выпуску готовой продукции (кг) */
+function calcBatch(recipeKey, outputKg, sellPrice, yieldOverride){
+  let r = RECIPES[recipeKey];
+  let yieldPct = (yieldOverride!==undefined && yieldOverride>0) ? yieldOverride/100 : r.yield;
+  let rawBasis = outputKg / yieldPct; // эквивалент "10кг рецептурных единиц" нужно rawBasis/10 раз
+  let scale = rawBasis/10;
+
+  let rows = r.items.map(it=>{
+    let qty = it.qty*scale;
+    let price = priceOf(it.ing);
+    let cost = qty*price;
+    return {ing:it.ing, name:ingName(it.ing), normPer10:it.qty, qty:qty, price:price, cost:cost};
+  });
+  let rawMaterialCost = rows.reduce((s,row)=>s+row.cost,0);
+
+  let energyCoef = ENERGY_COEF[r.type] ?? 1.0;
+  let laborCoef  = LABOR_COEF[r.type]  ?? 1.0;
+  let energyCost = ENERGY_BASE_PER_10KG_OUTPUT * (outputKg/10) * energyCoef;
+  let laborCost  = LABOR_BASE_PER_10KG_OUTPUT  * (outputKg/10) * laborCoef;
+
+  let shellMeters = outputKg * SHELL_RATE_M_PER_KG;
+  let shellCost = shellMeters * priceOf("obolochka");
+
+  let baseCost = rawMaterialCost + energyCost + laborCost + shellCost;
+  let overhead = baseCost * OVERHEAD_RATE;
+  let amortization = baseCost * AMORTIZATION_RATE;
+  let fullCost = baseCost + overhead + amortization;
+
+  let costPerKg = outputKg>0 ? fullCost/outputKg : 0;
+  let profitPerKg = sellPrice - costPerKg;
+  let profitability = sellPrice>0 ? (profitPerKg/sellPrice)*100 : 0;
+  let totalProfit = profitPerKg*outputKg;
+  let totalRevenue = sellPrice*outputKg;
+
+  return {
+    recipeKey, recipe:r, outputKg, yieldPct, rawBasis, rows,
+    rawMaterialCost, energyCost, laborCost, shellCost, shellMeters,
+    baseCost, overhead, amortization, fullCost,
+    costPerKg, sellPrice, profitPerKg, profitability, totalProfit, totalRevenue
+  };
+}
+
+/* =====================================================================
+   НАВИГАЦИЯ ПО ВКЛАДКАМ
+   ===================================================================== */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    if(btn.dataset.tab==='econ') renderEconomics();
+    if(btn.dataset.tab==='calc') renderCalc();
+  });
+});
+
+/* =====================================================================
+   ВКЛАДКА: ПОСТУПЛЕНИЕ СЫРЬЯ
+   ===================================================================== */
+function fillIngredientSelect(){
+  let sel = document.getElementById('in-ingredient');
+  sel.innerHTML = "";
+  for(let key in DEFAULT_PRICES){
+    if(key==="obolochka") continue; // оболочка учитывается отдельно, не как сырьё для рецептур
+    let opt = document.createElement('option');
+    opt.value = key; opt.textContent = ingName(key);
+    sel.appendChild(opt);
+  }
+  sel.addEventListener('change', ()=>{
+    document.getElementById('in-price').value = priceOf(sel.value);
+  });
+  document.getElementById('in-price').value = priceOf(sel.value);
+}
+
+function addIntake(){
+  let ingredient = document.getElementById('in-ingredient').value;
+  let qty = parseFloat(document.getElementById('in-qty').value);
+  let price = parseFloat(document.getElementById('in-price').value);
+  let date = document.getElementById('in-date').value || todayISO();
+  let supplier = document.getElementById('in-supplier').value.trim();
+  let batch = document.getElementById('in-batch').value.trim();
+  let expiry = document.getElementById('in-expiry').value || addMonths(date,6);
+
+  if(isNaN(qty) || qty<=0){ alert("Введите корректное положительное количество (кг)."); return; }
+  if(isNaN(price) || price<0){ alert("Введите корректную цену (не отрицательную)."); return; }
+
+  state.intake.push({
+    id: Date.now(),
+    date, ingredient, qty, price, supplier, batch, expiry, used:0
+  });
+  // обновляем цену в справочнике, чтобы калькулятор сразу использовал актуальную закупочную цену
+  state.prices[ingredient] = price;
+
+  saveState();
+  document.getElementById('in-qty').value="";
+  document.getElementById('in-supplier').value="";
+  document.getElementById('in-batch').value="";
+  renderIntakeTab();
+}
+
+function deleteIntake(id){
+  if(!confirm("Удалить эту запись о поступлении?")) return;
+  state.intake = state.intake.filter(r=>r.id!==id);
+  saveState();
+  renderIntakeTab();
+}
+
+function renderIntakeTab(){
+  // таблица поступлений
+  let tbody = document.querySelector('#intake-table tbody');
+  tbody.innerHTML = "";
+  let today = new Date();
+  state.intake.slice().sort((a,b)=>b.date.localeCompare(a.date)).forEach(rec=>{
+    let tr = document.createElement('tr');
+    let daysLeft = Math.round((new Date(rec.expiry)-today)/(1000*3600*24));
+    let status = "В норме";
+    let statusStyle = "";
+    if(daysLeft<0){ status="Просрочено!"; statusStyle="color:#c0392b;font-weight:bold;"; }
+    else if(daysLeft<=30){ status="Истекает через "+daysLeft+" дн."; statusStyle="color:#b8860b;font-weight:bold;"; }
+    tr.innerHTML = `
+      <td>${rec.date}</td>
+      <td>${ingName(rec.ingredient)}</td>
+      <td>${num(rec.qty)}</td>
+      <td>${num(rec.price,2)}</td>
+      <td>${money(rec.qty*rec.price)}</td>
+      <td>${rec.supplier||"—"}</td>
+      <td>${rec.batch||"—"}</td>
+      <td>${rec.expiry}</td>
+      <td style="${statusStyle}">${status}</td>
+      <td class="no-print"><button class="btn danger small" onclick="deleteIntake(${rec.id})">Удалить</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // остатки
+  let stock = computeStock();
+  let stockBody = document.querySelector('#stock-table tbody');
+  stockBody.innerHTML = "";
+  let totalValue = 0;
+  for(let key in stock){
+    if(key==="obolochka") continue;
+    if(stock[key] <= 0.0001) continue;
+    let price = priceOf(key);
+    let value = stock[key]*price;
+    totalValue += value;
+    let tr = document.createElement('tr');
+    tr.innerHTML = `<td>${ingName(key)}</td><td>${num(stock[key])}</td><td>${num(price,2)}</td><td>${money(value)}</td>`;
+    stockBody.appendChild(tr);
+  }
+  document.getElementById('stock-total-value').textContent = money(totalValue);
+
+  // макс. производство и рекомендации
+  let maxBody = document.querySelector('#max-production-table tbody');
+  maxBody.innerHTML = "";
+  let results = [];
+  for(let key in RECIPES){
+    let mo = computeMaxOutput(key, stock);
+    let calc = mo.output>0 ? calcBatch(key, mo.output, 1200) : null;
+    results.push({key, name:RECIPES[key].name, output:mo.output, limiter:mo.limiter, calc});
+    let tr = document.createElement('tr');
+    let costPerKg = calc ? calc.costPerKg : 0;
+    let profitability = calc ? calc.profitability : 0;
+    let warnClass = mo.output>0 && mo.output<10 ? 'style="background:#fff8e1;"' : '';
+    tr.innerHTML = `<tr ${warnClass}>
+      <td>${RECIPES[key].name}</td>
+      <td>${mo.limiter}</td>
+      <td>${num(mo.output,1)}</td>
+      <td>${calc?num(costPerKg,2):"—"}</td>
+      <td>${calc?pct(profitability):"—"}</td>
+    </tr>`;
+    maxBody.innerHTML += tr.innerHTML;
+  }
+
+  // предупреждения
+  let warnings = [];
+  state.intake.forEach(rec=>{
+    let daysLeft = Math.round((new Date(rec.expiry)-today)/(1000*3600*24));
+    if(daysLeft>=0 && daysLeft<=30){
+      warnings.push(`<div class="danger-box">⚠️ Срок годности «${ingName(rec.ingredient)}» (партия ${rec.batch||rec.id}) истекает через ${daysLeft} дн. (${rec.expiry})</div>`);
+    } else if(daysLeft<0){
+      warnings.push(`<div class="danger-box">⛔ Срок годности «${ingName(rec.ingredient)}» (партия ${rec.batch||rec.id}) истёк ${rec.expiry}!</div>`);
+    }
+  });
+  results.forEach(r=>{
+    if(r.output>0 && r.output<10){
+      warnings.push(`<div class="warn-box">⚠️ Остатка сырья хватит менее чем на 10 кг продукции «${r.name}» (макс. ${num(r.output,1)} кг)</div>`);
+    }
+  });
+  document.getElementById('intake-warnings').innerHTML = warnings.join("");
+
+  // рекомендация — лучший по рентабельности среди тех у кого выпуск >= 10кг, иначе просто максимум по выпуску
+  let candidates = results.filter(r=>r.output>=10 && r.calc);
+  let pool = candidates.length>0 ? candidates : results.filter(r=>r.calc);
+  if(pool.length>0){
+    pool.sort((a,b)=> b.calc.profitability - a.calc.profitability);
+    let best = pool[0];
+    document.getElementById('recommendation-box').innerHTML =
+      `💡 <b>Рекомендация:</b> в первую очередь произвести «${best.name}» — доступно сырья на ${num(best.output,1)} кг готовой продукции, рентабельность ≈ ${pct(best.calc.profitability)} (при цене 1200 ₽/кг).`;
+  } else {
+    document.getElementById('recommendation-box').innerHTML = "Недостаточно данных о поступлениях сырья для формирования рекомендации.";
+  }
+}
+
+/* =====================================================================
+   ВКЛАДКА: КАЛЬКУЛЯТОР ПАРТИИ
+   ===================================================================== */
+function fillRecipeSelects(){
+  let sel = document.getElementById('calc-recipe');
+  sel.innerHTML = "";
+  for(let key in RECIPES){
+    let opt = document.createElement('option');
+    opt.value = key; opt.textContent = RECIPES[key].name;
+    sel.appendChild(opt);
+  }
+  sel.addEventListener('change', ()=>{
+    document.getElementById('calc-yield').value = (RECIPES[sel.value].yield*100).toFixed(1);
+    renderCalc();
+  });
+  document.getElementById('calc-yield').value = (RECIPES[sel.value].yield*100).toFixed(1);
+}
+
+function renderCalc(){
+  let recipeKey = document.getElementById('calc-recipe').value;
+  let outputKg = parseFloat(document.getElementById('calc-output').value);
+  let sellPrice = parseFloat(document.getElementById('calc-price').value);
+  let yieldOverride = parseFloat(document.getElementById('calc-yield').value);
+  if(isNaN(outputKg) || outputKg<=0){ document.getElementById('calc-results').innerHTML = "<p>Введите положительный план выпуска готовой продукции.</p>"; return; }
+  if(isNaN(sellPrice) || sellPrice<0) sellPrice = 0;
+
+  let c = calcBatch(recipeKey, outputKg, sellPrice, yieldOverride);
+  let stock = computeStock();
+
+  let rowsHtml = c.rows.map(r=>`<tr>
+    <td>${r.name}</td>
+    <td>${num(r.normPer10,4)}</td>
+    <td>${num(r.qty,3)}</td>
+    <td>${num(r.price,2)}</td>
+    <td>${money(r.cost)}</td>
+  </tr>`).join("");
+
+  // проверка остатков
+  let trackedKeys = new Set(state.intake.map(i=>i.ingredient));
+  let shortages = [];
+  c.rows.forEach(r=>{
+    if(trackedKeys.has(r.ing)){
+      let avail = stock[r.ing]||0;
+      if(avail < r.qty - 0.0001){
+        shortages.push(`${r.name}: требуется ${num(r.qty,3)} кг, в наличии ${num(avail,3)} кг (нехватка ${num(r.qty-avail,3)} кг)`);
+      }
+    }
+  });
+  let stockCheckHtml = shortages.length===0
+    ? `<div class="ok-box">✅ Сырья на складе достаточно для производства этой партии.</div>`
+    : `<div class="danger-box">⛔ Недостаточно сырья:<br>${shortages.join("<br>")}</div>`;
+
+  let profitClass = c.profitPerKg>=0 ? 'result-box' : 'danger-box';
+
+  document.getElementById('calc-results').innerHTML = `
+    <h2 class="section-title">Расход сырья на партию — ${c.recipe.name}</h2>
+    <div class="card">
+      <p>Эквивалент рецептурной основы (сырьевой блок): <b>${num(c.rawBasis,2)} кг</b> → выход готовой продукции <b>${num(c.outputKg,2)} кг</b> (${num(c.yieldPct*100,1)} %)</p>
+      <table>
+        <thead><tr><th>Ингредиент</th><th>Норма на 10 кг основы</th><th>Кол-во на партию, кг</th><th>Цена, ₽/кг</th><th>Стоимость, ₽</th></tr></thead>
+        <tbody>${rowsHtml}</tbody>
+        <tfoot><tr style="font-weight:bold;background:#eef4ff;"><td colspan="2">Итого сырья</td><td>${num(c.rawBasis,3)} кг</td><td></td><td>${money(c.rawMaterialCost)}</td></tr></tfoot>
+      </table>
+      ${stockCheckHtml}
+      <button class="btn" onclick="writeOffStock('${recipeKey}', ${c.outputKg}, ${yieldOverride})">📦 Списать со склада</button>
+      <button class="btn secondary" onclick="printTechCard('${recipeKey}', ${c.outputKg}, ${sellPrice})">🖨️ Печать техкарты</button>
+    </div>
+
+    <h2 class="section-title">Себестоимость партии по статьям</h2>
+    <div class="card">
+      <table>
+        <tr><td>Сырьё и специи</td><td>${money(c.rawMaterialCost)}</td></tr>
+        <tr><td>Энергозатраты</td><td>${money(c.energyCost)}</td></tr>
+        <tr><td>Трудозатраты</td><td>${money(c.laborCost)}</td></tr>
+        <tr><td>Оболочка (≈ ${num(c.shellMeters,1)} м)</td><td>${money(c.shellCost)}</td></tr>
+        <tr style="font-weight:bold;"><td>Себестоимость (база)</td><td>${money(c.baseCost)}</td></tr>
+        <tr><td>Накладные расходы (15%)</td><td>${money(c.overhead)}</td></tr>
+        <tr><td>Амортизация (5%)</td><td>${money(c.amortization)}</td></tr>
+        <tr style="font-weight:bold;background:#eef4ff;"><td>ПОЛНАЯ СЕБЕСТОИМОСТЬ ПАРТИИ</td><td>${money(c.fullCost)}</td></tr>
+      </table>
+    </div>
+
+    <h2 class="section-title">Итоговые показатели</h2>
+    <div class="card">
+      <div class="kpi-grid">
+        <div class="kpi"><div class="label">Себестоимость 1 кг</div><div class="value">${money(c.costPerKg)}</div></div>
+        <div class="kpi"><div class="label">Отпускная цена</div><div class="value">${money(c.sellPrice)}</div></div>
+        <div class="kpi"><div class="label">Прибыль с 1 кг</div><div class="value">${money(c.profitPerKg)}</div></div>
+        <div class="kpi"><div class="label">Рентабельность</div><div class="value">${pct(c.profitability)}</div></div>
+        <div class="kpi"><div class="label">Выручка с партии</div><div class="value">${money(c.totalRevenue)}</div></div>
+        <div class="kpi"><div class="label">Прибыль с партии</div><div class="value">${money(c.totalProfit)}</div></div>
+      </div>
+      ${c.profitability<20 ? '<div class="warn-box">⚠️ Рентабельность ниже 20% — рекомендуется пересмотреть отпускную цену или снизить издержки.</div>' : ''}
+    </div>
+  `;
+}
+
+function writeOffStock(recipeKey, outputKg, yieldOverride){
+  let c = calcBatch(recipeKey, outputKg, 0, yieldOverride);
+  let stock = computeStock();
+  let trackedKeys = new Set(state.intake.map(i=>i.ingredient));
+  // проверка достаточности
+  for(let r of c.rows){
+    if(trackedKeys.has(r.ing) && (stock[r.ing]||0) < r.qty - 0.0001){
+      alert("Недостаточно сырья «"+r.name+"» для списания. Операция отменена.");
+      return;
+    }
+  }
+  if(!confirm("Списать со склада сырьё для партии «"+c.recipe.name+"» ("+num(outputKg,1)+" кг готовой продукции)?")) return;
+
+  // списываем по принципу FIFO по дате поступления
+  c.rows.forEach(r=>{
+    if(!trackedKeys.has(r.ing)) return;
+    let need = r.qty;
+    let lots = state.intake.filter(i=>i.ingredient===r.ing).sort((a,b)=>a.date.localeCompare(b.date));
+    for(let lot of lots){
+      if(need<=0) break;
+      let avail = lot.qty - (lot.used||0);
+      let take = Math.min(avail, need);
+      lot.used = (lot.used||0) + take;
+      need -= take;
+    }
+  });
+  saveState();
+  alert("Сырьё списано со склада.");
+  renderIntakeTab();
+  renderCalc();
+}
+
+function printTechCard(recipeKey, outputKg, sellPrice){
+  let c = calcBatch(recipeKey, outputKg, sellPrice);
+  let win = window.open('', '_blank');
+  let rowsHtml = c.rows.map(r=>`<tr><td>${r.name}</td><td>${num(r.qty,3)} кг</td></tr>`).join("");
+  win.document.write(`
+    <html><head><title>Техкарта — ${c.recipe.name}</title>
+    <style>body{font-family:Arial;padding:20px;} table{border-collapse:collapse;width:100%;} td,th{border:1px solid #333;padding:6px;}</style>
+    </head><body>
+    <h2>Технологическая карта: ${c.recipe.name}</h2>
+    <p>Дата печати: ${new Date().toLocaleDateString('ru-RU')}</p>
+    <p>План выпуска готовой продукции: <b>${num(outputKg,2)} кг</b> (выход ${num(c.yieldPct*100,1)}%)</p>
+    <h3>Рецептура на партию</h3>
+    <table><tr><th>Ингредиент</th><th>Количество</th></tr>${rowsHtml}</table>
+    <h3>Экономика</h3>
+    <p>Полная себестоимость партии: ${money(c.fullCost)}</p>
+    <p>Себестоимость 1 кг: ${money(c.costPerKg)}</p>
+    <p>Отпускная цена: ${money(c.sellPrice)} | Прибыль с 1 кг: ${money(c.profitPerKg)} | Рентабельность: ${pct(c.profitability)}</p>
+    </body></html>
+  `);
+  win.document.close();
+  win.print();
+}
+
+/* =====================================================================
+   ВКЛАДКА: ТЕХКАРТЫ (СПРАВОЧНИК)
+   ===================================================================== */
+let activeCardRecipe = Object.keys(RECIPES)[0];
+
+function renderCardsTabs(){
+  let tabsDiv = document.getElementById('cards-recipe-tabs');
+  tabsDiv.innerHTML = "";
+  for(let key in RECIPES){
+    let btn = document.createElement('button');
+    btn.textContent = RECIPES[key].name;
+    btn.className = key===activeCardRecipe ? 'active' : '';
+    btn.onclick = ()=>{ activeCardRecipe = key; renderCardsTabs(); renderCardContent(); };
+    tabsDiv.appendChild(btn);
+  }
+}
+
+function renderCardContent(){
+  let r = RECIPES[activeCardRecipe];
+  let rowsHtml = r.items.map(it=>`<tr><td>${ingName(it.ing)}</td><td>${num(it.qty,4)} кг</td></tr>`).join("");
+  let haccpRows = HACCP_POINTS.map(h=>`<div class="haccp"><b>${h[0]}</b> ${h[1]}: ${h[2]}</div>`).join("");
+  document.getElementById('cards-content').innerHTML = `
+    <h3>${r.name}</h3>
+    <p><b>Выход готовой продукции:</b> ${num(r.yield*100,1)}% &nbsp; | &nbsp; <b>Срок хранения:</b> ${r.storage}</p>
+    <h4>Рецептура (на 10 кг сырьевой основы)</h4>
+    <table><thead><tr><th>Ингредиент</th><th>Норма</th></tr></thead><tbody>${rowsHtml}</tbody></table>
+    <h4>Органолептические показатели</h4>
+    <p>${r.organoleptic}</p>
+    <h4>Технологический процесс</h4>
+    <table><thead><tr><th>№</th><th>Этап</th><th>Параметры</th></tr></thead>
+      <tbody>${PROCESS_STEPS.map(s=>`<tr><td>${s[0]}</td><td>${s[1]}</td><td>${s[2]}</td></tr>`).join("")}</tbody>
+    </table>
+    <h4>Критические контрольные точки (ККТ)</h4>
+    ${haccpRows}
+  `;
+}
+
+/* =====================================================================
+   ВКЛАДКА: ТЕХПРОЦЕСС
+   ===================================================================== */
+function renderProcessTab(){
+  document.getElementById('process-steps-body').innerHTML =
+    PROCESS_STEPS.map(s=>`<tr><td>${s[0]}</td><td>${s[1]}</td><td>${s[2]}</td></tr>`).join("");
+  document.getElementById('haccp-box').innerHTML =
+    HACCP_POINTS.map(h=>`<div class="haccp"><b>${h[0]} — ${h[1]}:</b> ${h[2]}</div>`).join("");
+}
+
+/* =====================================================================
+   ВКЛАДКА: ЭКОНОМИКА
+   ===================================================================== */
+function renderEconomics(){
+  let sellPrice = parseFloat(document.getElementById('econ-price').value) || 0;
+  let results = [];
+  for(let key in RECIPES){
+    let c = calcBatch(key, 100, sellPrice); // считаем на условную партию 100 кг готовой продукции для сравнения
+    results.push({key, name:RECIPES[key].name, c});
+  }
+
+  let tbody = document.querySelector('#econ-table tbody');
+  tbody.innerHTML = results.map(r=>`
+    <tr style="${r.c.profitPerKg<0?'background:#ffe6e6;':''}">
+      <td>${r.name}</td>
+      <td>${num(r.c.costPerKg,2)}</td>
+      <td>${num(sellPrice,2)}</td>
+      <td>${num(r.c.profitPerKg,2)}</td>
+      <td>${pct(r.c.profitability)}</td>
+    </tr>`).join("");
+
+  let stockVal = 0;
+  let stock = computeStock();
+  for(let k in stock) if(k!=='obolochka') stockVal += (stock[k]||0)*priceOf(k);
+
+  let avgCost = results.reduce((s,r)=>s+r.c.costPerKg,0)/results.length;
+  let bestProfit = results.slice().sort((a,b)=>b.c.profitability-a.c.profitability)[0];
+
+  document.getElementById('econ-kpis').innerHTML = `
+    <div class="kpi"><div class="label">Стоимость сырья на складе</div><div class="value">${money(stockVal)}</div></div>
+    <div class="kpi"><div class="label">Средняя себестоимость 1 кг</div><div class="value">${money(avgCost)}</div></div>
+    <div class="kpi"><div class="label">Лучшая рентабельность</div><div class="value">${bestProfit.name.split('«')[1]?.replace('»','')||bestProfit.name} — ${pct(bestProfit.c.profitability)}</div></div>
+  `;
+
+  // структура себестоимости (на 1 кг) — простая визуализация полосками
+  document.getElementById('econ-structure').innerHTML = results.map(r=>{
+    let c = r.c;
+    let perKg = v=>v/c.outputKg;
+    let total = c.fullCost/c.outputKg;
+    let parts = [
+      ["Сырьё", perKg(c.rawMaterialCost), "#4a90e2"],
+      ["Энергия", perKg(c.energyCost), "#f39c12"],
+      ["Труд", perKg(c.laborCost), "#27ae60"],
+      ["Оболочка", perKg(c.shellCost), "#9b59b6"],
+      ["Накладные+аморт.", perKg(c.overhead+c.amortization), "#c0392b"]
+    ];
+    let bars = parts.map(p=>{
+      let w = total>0 ? (p[1]/total*100) : 0;
+      return `<div style="display:flex;align-items:center;margin:2px 0;">
+        <div style="width:140px;font-size:0.82em;">${p[0]}</div>
+        <div style="flex:1;background:#eee;border-radius:4px;overflow:hidden;height:14px;">
+          <div style="width:${w.toFixed(1)}%;background:${p[2]};height:100%;"></div>
+        </div>
+        <div style="width:80px;text-align:right;font-size:0.82em;">${money(p[1])}</div>
+      </div>`;
+    }).join("");
+    return `<div style="margin-bottom:14px;"><b>${r.name}</b> — себестоимость 1 кг: ${money(total)}${bars}</div>`;
+  }).join("");
+
+  // топ-3
+  let top3 = results.slice().sort((a,b)=>b.c.profitPerKg-a.c.profitPerKg).slice(0,3);
+  document.getElementById('econ-top3').innerHTML = top3.map((r,i)=>
+    `${i+1}. <b>${r.name}</b> — прибыль ${money(r.c.profitPerKg)}/кг, рентабельность ${pct(r.c.profitability)}<br>`
+  ).join("");
+}
+
+/* =====================================================================
+   ЭКСПОРТ / ИМПОРТ / СБРОС
+   ===================================================================== */
+function exportData(){
+  let blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  let url = URL.createObjectURL(blob);
+  let a = document.createElement('a');
+  a.href = url; a.download = 'kalkulyator_kolbas_data.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(event){
+  let file = event.target.files[0];
+  if(!file) return;
+  let reader = new FileReader();
+  reader.onload = e=>{
+    try{
+      let parsed = JSON.parse(e.target.result);
+      if(!parsed.prices || !parsed.intake) throw new Error("Неверный формат файла");
+      state = parsed;
+      saveState();
+      initAll();
+      alert("Данные успешно импортированы.");
+    }catch(err){
+      alert("Ошибка импорта: файл повреждён или имеет неверный формат.");
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = "";
+}
+
+function resetAllData(){
+  if(!confirm("Вы уверены? Все данные о поступлениях и изменённых ценах будут удалены безвозвратно.")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  state = loadState();
+  initAll();
+}
+
+/* =====================================================================
+   ИНИЦИАЛИЗАЦИЯ
+   ===================================================================== */
+function initAll(){
+  fillIngredientSelect();
+  fillRecipeSelects();
+  document.getElementById('in-date').value = todayISO();
+  document.getElementById('in-expiry').value = addMonths(todayISO(),6);
+  renderIntakeTab();
+  renderCalc();
+  renderCardsTabs();
+  renderCardContent();
+  renderProcessTab();
+  renderEconomics();
+}
+initAll();
+
+/* Регистрация Service Worker для офлайн-режима (работает только при открытии по https-ссылке после хостинга) */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('service-worker.js').catch(err=>console.warn('SW error:',err));
+  });
+}
+</script>
+</body>
+</html>
